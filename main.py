@@ -1,25 +1,67 @@
-from models.invoice import Invoice 
-from models.transaction import Transaction
-from data import synthetic_data_generator as sg
 
-data=()
-generate=sg.SyntheticDataGenerator()
-data=generate.generate_batch(5)
-print(data[0],sep="\n",end="\n")
-print()
-print(data[1])
-print()
-print(data[2])
-print()
-print(len(data[0]))
-print()
-print(len(data[1]))
-print()
-print(len(data[2]))
+from data.synthetic_data_generator import SyntheticDataGenerator
+from workflow.error_injector import ErrorInjector
+from workflow.data_processor import DataPreprocessor
 
 
+def main():
+
+    # Step 1: Generate the Golden Dataset
+    generator = SyntheticDataGenerator()
+
+    invoices, transactions = generator.generate_batch(5)
+
+    # Step 2: Create a Working Copy
+    working_invoices, working_transactions = generator.create_working_copy(
+        invoices,
+        transactions
+    )
+
+    # Step 3: Inject Errors
+    injector = ErrorInjector()
+
+    metadata = injector.inject_errors(
+        working_invoices,
+        working_transactions
+    )
+
+    # Step 4: Preprocess
+    preprocessor = DataPreprocessor()
+
+    full_records = preprocessor.create_full_records(
+        working_invoices,
+        working_transactions
+    )
+
+    primary_records = preprocessor.create_primary_records(
+        full_records
+    )
+
+    # Step 5: Display Results
+    print("=" * 60)
+    print("Golden Dataset")
+    print("=" * 60)
+    print(invoices)
+    print(transactions)
+
+    print("\n" + "=" * 60)
+    print("Injected Errors")
+    print("=" * 60)
+    print(metadata)
+
+    print("\n" + "=" * 60)
+    print("Full Records")
+    print("=" * 60)
+    print(full_records)
+
+    print("\n" + "=" * 60)
+    print("Primary Records")
+    print("=" * 60)
+    print(primary_records)
 
 
+if __name__ == "__main__":
+    main()
 
 
 
