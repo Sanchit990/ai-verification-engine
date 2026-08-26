@@ -1,0 +1,331 @@
+from models.invoice import Invoice 
+from models.transaction import Transaction
+from data import synthetic_data_generator as sg
+
+data=()
+generate=sg.SyntheticDataGenerator()
+data=generate.generate_batch(5)
+print(data[0],sep="\n",end="\n")
+print()
+print(data[1])
+print()
+print(data[2])
+print()
+print(len(data[0]))
+print()
+print(len(data[1]))
+print()
+print(len(data[2]))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# invoice = Invoice(
+#     invoice_id="INV001",
+#     customer_id="C001",
+#     reference_number="REF123",
+#     customer_name="Alice",
+#     invoice_date=date(2026, 8, 23),
+#     subtotal=1000,
+#     gst=180,
+#     grand_total=1180,
+#     currency="INR",
+#     status="Generated",
+#     description="MacBook Pro",
+#     payment_mode="UPI"
+# )
+
+# print(invoice)
+
+# transaction= Transaction(
+#     transaction_id="TXN-10045",
+#     customer_id="CUS-204",
+#     customer_name="Sanchit Chauhan",
+#     transaction_date=date(2026, 8, 23),
+#     transaction_amount=15000.50,
+#     transaction_type="Debit",
+#     reference_number="INV-10045",
+#     currency="INR",
+#     status="Completed",
+#     description="Payment for laptop purchase",
+#     payment_mode="UPI"
+# )
+
+
+# print(transaction)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# from pydantic import BaseModel,ConfigDict
+# from typing import Optional
+# from datetime import datetime
+
+# class User(BaseModel):
+#     id:int
+#     name:str='james'
+#     signup_time:Optional[datetime]=None
+
+
+# m=User.model_validate({'id':'1234','name':'jhon'}) #can provide dictonary input 
+
+# print(m)
+
+# m=User.model_validate_json('{"id":1234, "name":"james"}')
+
+# print(m)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# class A(BaseModel):
+#     count:int 
+#     size:Optional[float]=None
+
+# class B(BaseModel):
+#     apple:str='x'
+#     banana:str='y'
+
+
+# class c(BaseModel):
+#     a:A
+#     b:list[B]
+#     a1:A
+#     b1:list[B]
+
+
+# m = c(
+#     a={'count': 10, 'size': 4},
+
+#     b=[
+#         {'apple': 'red', 'banana': 'yellow'},
+#         {'apple': 'green', 'banana': 'green'},
+#         {'apple': 'pink'},
+#         {'banana': 'black'}
+#     ],
+
+#     a1={'count': '15', 'size': 4},
+
+#     b1=[
+#         {'apple': 'red', 'banana': 'yellow'},
+#         {'apple': 'green', 'banana': 'green'},
+#         {'apple': 'pink'},
+#         {'banana': 'black'}
+#     ]
+# )
+
+# print(m)
+
+
+# print(m.model_dump())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# user=User(name="Sanchit Chauhan" , id='1234')
+
+
+# assert user.name=="Sanchit Chauhan"
+# assert user.id==1234
+# assert isinstance(user.id,int)
+# assert isinstance(user.name, str)
+# print(user) #expecting my name Sanchit Chauhan 
+
+
+# assert user.model_dump()=={'id':1234 ,'name':'Sanchit Chauhan'}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# import base64
+# from google import genai
+# from dotenv import load_dotenv
+
+# load_dotenv()
+# client=genai.Client()
+
+# interaction=client.interactions.create(
+#     model="gemini-2.5-flash-image",
+#     input="create me an image of super car"
+# )
+# with open("generated_image.png","wb") as f:
+#     f.write(base64.b64decode(interaction.output_image.data))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# with open("dog-on-isolated-background-png.png.webp","rb") as f:
+#     image_byte=f.read()
+#     image_b64=base64.b64encode(image_byte).decode("uft-8")
+
+# interection=client.interactions.create(
+# model="gemini-3.6-flash",
+# input=[
+#     {
+#         "type":"text","text":"this is a image tell me what it is u think"},
+#     {
+#         "type":"image",
+#         "data":image_b64,
+#         "mime_type":"image/webp"
+#     }
+# ]
+# )
+# print(interection)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# from dotenv import load_dotenv
+# from google import genai
+
+# load_dotenv()
+# client = genai.Client()
+
+# response= client.interactions.create(
+#     model="gemini-3.6-flash",
+#     input="hello i have a dog, it has 4 paws",
+# )
+
+# print(response.output_text)
+
+# response2=client.interactions.create(
+#     model='gemini-3.6-flash',
+#     input='how many paws does it have',
+#     previous_interaction_id=response.id,
+# )
+# print(response2.output_text)
+
