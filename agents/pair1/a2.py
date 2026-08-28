@@ -1,17 +1,15 @@
-#TODO:
-# Convert confidence from 0-1 to percentage (0-100)
 from pathlib import Path
 from config.gemini_client import client
 from models.fullrecords import FullRecord
 from models.agent_output import AgentOutput
 
 
-class A1:
+class A2:
 
     def __init__(self):
         self.client = client
 
-        self.system_prompt = Path("prompts/pair1/a1_system_prompt.md").read_text(encoding="utf-8")
+        self.system_prompt = Path("prompts/pair1/a2_system_prompt.md").read_text(encoding="utf-8")
 
     def build_prompt(self,fullrec:FullRecord)->str:
 

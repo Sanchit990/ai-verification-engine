@@ -1,23 +1,25 @@
-
 from data.synthetic_data_generator import SyntheticDataGenerator
 from workflow.error_injector import ErrorInjector
 from workflow.data_processor import DataPreprocessor
 
+from agents.pair1.a1 import A1
+from agents.pair1.a2 import A2
+
 
 def main():
 
-    # Step 1: Generate the Golden Dataset
+
     generator = SyntheticDataGenerator()
 
     invoices, transactions = generator.generate_batch(5)
 
-    # Step 2: Create a Working Copy
+
     working_invoices, working_transactions = generator.create_working_copy(
         invoices,
         transactions
     )
 
-    # Step 3: Inject Errors
+
     injector = ErrorInjector()
 
     metadata = injector.inject_errors(
@@ -25,7 +27,6 @@ def main():
         working_transactions
     )
 
-    # Step 4: Preprocess
     preprocessor = DataPreprocessor()
 
     full_records = preprocessor.create_full_records(
@@ -37,37 +38,33 @@ def main():
         full_records
     )
 
-    # Step 5: Display Results
-    print("=" * 60)
-    print("Golden Dataset")
-    print("=" * 60)
-    print(invoices)
-    print(transactions)
 
-    print("\n" + "=" * 60)
+    a1 = A1()
+    a2 = A2()
+
+    print("=" * 70)
+    print("A1 RESULT")
+    print("=" * 70)
+
+    a1_result = a1.analyze(full_records[0])
+    print(a1_result)
+
+    print("\n" + "=" * 70)
+    print("A2 RESULT")
+    print("=" * 70)
+
+    a2_result = a2.analyze(full_records[0])
+    print(a2_result)
+
+
+    print("\n" + "=" * 70)
     print("Injected Errors")
-    print("=" * 60)
+    print("=" * 70)
     print(metadata)
-
-    print("\n" + "=" * 60)
-    print("Full Records")
-    print("=" * 60)
-    print(full_records)
-
-    print("\n" + "=" * 60)
-    print("Primary Records")
-    print("=" * 60)
-    print(primary_records)
 
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
 
 
 
