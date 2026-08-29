@@ -4,21 +4,31 @@ from workflow.data_processor import DataPreprocessor
 
 from agents.pair1.a1 import A1
 from agents.pair1.a2 import A2
+from agents.pair1.consensus import ConsensusEngine
 
 
 def main():
 
+    # ---------------------------------------
+    # Generate Dataset
+    # ---------------------------------------
 
     generator = SyntheticDataGenerator()
 
     invoices, transactions = generator.generate_batch(5)
 
+    # ---------------------------------------
+    # Working Copy
+    # ---------------------------------------
 
     working_invoices, working_transactions = generator.create_working_copy(
         invoices,
         transactions
     )
 
+    # ---------------------------------------
+    # Inject Errors
+    # ---------------------------------------
 
     injector = ErrorInjector()
 
@@ -27,6 +37,10 @@ def main():
         working_transactions
     )
 
+    # ---------------------------------------
+    # Preprocess
+    # ---------------------------------------
+
     preprocessor = DataPreprocessor()
 
     full_records = preprocessor.create_full_records(
@@ -34,44 +48,54 @@ def main():
         working_transactions
     )
 
-    primary_records = preprocessor.create_primary_records(
-        full_records
-    )
-
+    # ---------------------------------------
+    # Pair 1
+    # ---------------------------------------
 
     a1 = A1()
     a2 = A2()
 
-    print("=" * 70)
-    print("A1 RESULT")
-    print("=" * 70)
-
     a1_result = a1.analyze(full_records[0])
+    a2_result = a2.analyze(full_records[0])
+
+    # ---------------------------------------
+    # Consensus
+    # ---------------------------------------
+
+    consensus = ConsensusEngine()
+
+    consensus_report = consensus.analyze(
+        a1_result,
+        a2_result
+    )
+
+    # ---------------------------------------
+    # Output
+    # ---------------------------------------
+
+    print("=" * 70)
+    print("A1 OUTPUT")
+    print("=" * 70)
     print(a1_result)
 
     print("\n" + "=" * 70)
-    print("A2 RESULT")
+    print("A2 OUTPUT")
     print("=" * 70)
-
-    a2_result = a2.analyze(full_records[0])
     print(a2_result)
 
+    print("\n" + "=" * 70)
+    print("CONSENSUS OUTPUT")
+    print("=" * 70)
+    print(consensus_report)
 
     print("\n" + "=" * 70)
-    print("Injected Errors")
+    print("INJECTED ERRORS")
     print("=" * 70)
     print(metadata)
 
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
 
 
 
