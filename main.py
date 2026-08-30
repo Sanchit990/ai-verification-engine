@@ -2,101 +2,121 @@ from data.synthetic_data_generator import SyntheticDataGenerator
 from workflow.error_injector import ErrorInjector
 from workflow.data_processor import DataPreprocessor
 
-from agents.pair1.a1 import A1
-from agents.pair1.a2 import A2
+from agents.pair1 import A1, A2
 from agents.pair1.consensus import ConsensusEngine
+
+# Uncomment after Pair 2 is ready
+# from agents.pair2 import Q5, Q6
+# from agents.pair2.consensus import ConsensusEngine as Pair2Consensus
+
+# Uncomment after Auditor is ready
+# from agents.auditor.auditor import Auditor
 
 
 def main():
 
-    # ---------------------------------------
-    # Generate Dataset
-    # ---------------------------------------
+    # STEP 1 : Generate Golden Dataset
+
 
     generator = SyntheticDataGenerator()
 
     invoices, transactions = generator.generate_batch(5)
 
-    # ---------------------------------------
-    # Working Copy
-    # ---------------------------------------
 
-    working_invoices, working_transactions = generator.create_working_copy(
-        invoices,
-        transactions
+    # STEP 2 : Create Working Copy
+
+
+    working_invoices, working_transactions = (
+        generator.create_working_copy(
+            invoices,
+            transactions,
+        )
     )
 
-    # ---------------------------------------
-    # Inject Errors
-    # ---------------------------------------
+
+    # STEP 3 : Inject Errors
+
 
     injector = ErrorInjector()
 
     metadata = injector.inject_errors(
         working_invoices,
-        working_transactions
+        working_transactions,
     )
 
-    # ---------------------------------------
-    # Preprocess
-    # ---------------------------------------
+
+    # STEP 4 : Preprocess
+
 
     preprocessor = DataPreprocessor()
 
     full_records = preprocessor.create_full_records(
         working_invoices,
-        working_transactions
+        working_transactions,
     )
 
-    # ---------------------------------------
-    # Pair 1
-    # ---------------------------------------
+    primary_records = preprocessor.create_primary_records(
+        full_records,
+    )
+
+
+    # STEP 5 : Pair 1
+
 
     a1 = A1()
     a2 = A2()
 
-    a1_result = a1.analyze(full_records[0])
-    a2_result = a2.analyze(full_records[0])
+    a1_outputs = a1.analyze_batch(full_records)
+    a2_outputs = a2.analyze_batch(full_records)
 
-    # ---------------------------------------
-    # Consensus
-    # ---------------------------------------
+    pair1_consensus = ConsensusEngine()
 
-    consensus = ConsensusEngine()
-
-    consensus_report = consensus.analyze(
-        a1_result,
-        a2_result
+    pair1_reports = pair1_consensus.analyze_batch(
+        a1_outputs,
+        a2_outputs,
     )
 
-    # ---------------------------------------
-    # Output
-    # ---------------------------------------
 
-    print("=" * 70)
-    print("A1 OUTPUT")
-    print("=" * 70)
-    print(a1_result)
+    # STEP 6 : Pair 2
 
-    print("\n" + "=" * 70)
-    print("A2 OUTPUT")
-    print("=" * 70)
-    print(a2_result)
 
-    print("\n" + "=" * 70)
-    print("CONSENSUS OUTPUT")
-    print("=" * 70)
-    print(consensus_report)
+    # q5 = Q5()
+    # q6 = Q6()
 
-    print("\n" + "=" * 70)
-    print("INJECTED ERRORS")
-    print("=" * 70)
-    print(metadata)
+    # q5_outputs = q5.analyze_batch(primary_records)
+    # q6_outputs = q6.analyze_batch(primary_records)
+
+    # pair2_consensus = Pair2Consensus()
+
+    # pair2_reports = pair2_consensus.analyze_batch(
+    #     q5_outputs,
+    #     q6_outputs,
+    # )
+
+
+    # STEP 7 : Auditor
+
+    # auditor = Auditor()
+
+    # auditor_reports = auditor.analyze_batch(
+    #     pair1_reports,
+    #     pair2_reports,
+    # )
+
+
+    # Debug
+
+    print("=" * 60)
+    print("PAIR 1 REPORT")
+    print("=" * 60)
+
+    for report in pair1_reports:
+        print(report)
+        print()
 
 
 if __name__ == "__main__":
     main()
-
 
 
 
