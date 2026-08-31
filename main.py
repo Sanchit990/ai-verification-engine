@@ -20,7 +20,7 @@ def main():
 
     generator = SyntheticDataGenerator()
 
-    invoices, transactions = generator.generate_batch(5)
+    invoices, transactions = generator.generate_batch(1)
 
 
     # STEP 2 : Create Working Copy
