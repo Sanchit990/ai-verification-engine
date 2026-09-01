@@ -2,413 +2,164 @@ from data.synthetic_data_generator import SyntheticDataGenerator
 from workflow.error_injector import ErrorInjector
 from workflow.data_processor import DataPreprocessor
 
-from agents.pair1 import A1, A2
+# Pair 1
+from agents.pair1.a1 import A1
+from agents.pair1.a2 import A2
 from agents.pair1.consensus import ConsensusEngine
 
-# Uncomment after Pair 2 is ready
-# from agents.pair2 import Q5, Q6
-# from agents.pair2.consensus import ConsensusEngine as Pair2Consensus
+# Pair 2
+from agents.pair2.a1 import A1 as Pair2A1
+from agents.pair2.a2 import A2 as Pair2A2
+from agents.pair2.consensus import ConsensusEngine as Pair2Consensus
 
-# Uncomment after Auditor is ready
-# from agents.auditor.auditor import Auditor
+# Auditor
+from agents.auditor import Auditor
+
+# Judge
+from agents.judge import Judge
 
 
 def main():
 
-    # STEP 1 : Generate Golden Dataset
+    print("=" * 80)
+    print("AI VERIFICATION ENGINE")
+    print("=" * 80)
+
+
+    # Generate Dataset
 
 
     generator = SyntheticDataGenerator()
 
-    invoices, transactions = generator.generate_batch(1)
-
-
-    # STEP 2 : Create Working Copy
-
+    invoices, transactions = generator.generate_batch(5)
 
     working_invoices, working_transactions = (
         generator.create_working_copy(
             invoices,
-            transactions,
+            transactions
         )
     )
-
-
-    # STEP 3 : Inject Errors
-
 
     injector = ErrorInjector()
 
     metadata = injector.inject_errors(
         working_invoices,
-        working_transactions,
+        working_transactions
     )
 
+    processor = DataPreprocessor()
 
-    # STEP 4 : Preprocess
-
-
-    preprocessor = DataPreprocessor()
-
-    full_records = preprocessor.create_full_records(
+    full_records = processor.create_full_records(
         working_invoices,
-        working_transactions,
+        working_transactions
     )
 
-    primary_records = preprocessor.create_primary_records(
-        full_records,
+    primary_records = processor.create_primary_records(
+        full_records
     )
 
 
-    # STEP 5 : Pair 1
+    # Pair 1
 
 
-    a1 = A1()
-    a2 = A2()
+    pair1_a1 = A1()
+    pair1_a2 = A2()
 
-    a1_outputs = a1.analyze_batch(full_records)
-    a2_outputs = a2.analyze_batch(full_records)
+    pair1_a1_output = pair1_a1.analyze(full_records[0])
+    pair1_a2_output = pair1_a2.analyze(full_records[0])
 
     pair1_consensus = ConsensusEngine()
 
-    pair1_reports = pair1_consensus.analyze_batch(
-        a1_outputs,
-        a2_outputs,
+    pair1_report = pair1_consensus.analyze(
+        pair1_a1_output,
+        pair1_a2_output
     )
 
 
-    # STEP 6 : Pair 2
+    # Pair 2
 
 
-    # q5 = Q5()
-    # q6 = Q6()
+    pair2_a1 = Pair2A1()
+    pair2_a2 = Pair2A2()
 
-    # q5_outputs = q5.analyze_batch(primary_records)
-    # q6_outputs = q6.analyze_batch(primary_records)
+    pair2_a1_output = pair2_a1.analyze(primary_records[0])
+    pair2_a2_output = pair2_a2.analyze(primary_records[0])
 
-    # pair2_consensus = Pair2Consensus()
+    pair2_consensus = Pair2Consensus()
 
-    # pair2_reports = pair2_consensus.analyze_batch(
-    #     q5_outputs,
-    #     q6_outputs,
-    # )
-
-
-    # STEP 7 : Auditor
-
-    # auditor = Auditor()
-
-    # auditor_reports = auditor.analyze_batch(
-    #     pair1_reports,
-    #     pair2_reports,
-    # )
+    pair2_report = pair2_consensus.analyze(
+        pair2_a1_output,
+        pair2_a2_output
+    )
 
 
-    # Debug
+    # Auditor
 
-    print("=" * 60)
-    print("PAIR 1 REPORT")
-    print("=" * 60)
 
-    for report in pair1_reports:
-        print(report)
-        print()
+    auditor = Auditor()
+
+    auditor_report = auditor.analyze(
+        pair1_report,
+        pair2_report
+    )
+
+
+    # Judge
+
+
+    judge = Judge()
+
+    judge_report = judge.analyze(
+        pair1_report,
+        pair2_report,
+        auditor_report
+    )
+
+
+    # Summary
+
+
+    print("\n" + "=" * 80)
+    print("PAIR 1")
+    print("=" * 80)
+    print(
+        f"Decision   : {pair1_report.final_decision}\n"
+        f"Confidence : {pair1_report.final_confidence:.2f}"
+    )
+
+    print("\n" + "=" * 80)
+    print("PAIR 2")
+    print("=" * 80)
+    print(
+        f"Decision   : {pair2_report.final_decision}\n"
+        f"Confidence : {pair2_report.final_confidence:.2f}"
+    )
+
+    print("\n" + "=" * 80)
+    print("AUDITOR")
+    print("=" * 80)
+    print(
+        f"Recommended Pair : {auditor_report.recommended_pair}\n"
+        f"Next Action      : {auditor_report.next_action}\n"
+        f"Confidence       : {auditor_report.final_confidence:.2f}"
+    )
+
+    print("\n" + "=" * 80)
+    print("JUDGE")
+    print("=" * 80)
+    print(
+        f"Final Decision : {judge_report.final_decision}\n"
+        f"Confidence     : {judge_report.final_confidence:.2f}\n"
+        f"Next Action    : {judge_report.next_action}"
+    )
+
+    print("\n" + "=" * 80)
+    print("INJECTED ERRORS")
+    print("=" * 80)
+
+    for error in metadata:
+        print(error)
 
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-# invoice = Invoice(
-#     invoice_id="INV001",
-#     customer_id="C001",
-#     reference_number="REF123",
-#     customer_name="Alice",
-#     invoice_date=date(2026, 8, 23),
-#     subtotal=1000,
-#     gst=180,
-#     grand_total=1180,
-#     currency="INR",
-#     status="Generated",
-#     description="MacBook Pro",
-#     payment_mode="UPI"
-# )
-
-# print(invoice)
-
-# transaction= Transaction(
-#     transaction_id="TXN-10045",
-#     customer_id="CUS-204",
-#     customer_name="Sanchit Chauhan",
-#     transaction_date=date(2026, 8, 23),
-#     transaction_amount=15000.50,
-#     transaction_type="Debit",
-#     reference_number="INV-10045",
-#     currency="INR",
-#     status="Completed",
-#     description="Payment for laptop purchase",
-#     payment_mode="UPI"
-# )
-
-
-# print(transaction)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# from pydantic import BaseModel,ConfigDict
-# from typing import Optional
-# from datetime import datetime
-
-# class User(BaseModel):
-#     id:int
-#     name:str='james'
-#     signup_time:Optional[datetime]=None
-
-
-# m=User.model_validate({'id':'1234','name':'jhon'}) #can provide dictonary input 
-
-# print(m)
-
-# m=User.model_validate_json('{"id":1234, "name":"james"}')
-
-# print(m)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# class A(BaseModel):
-#     count:int 
-#     size:Optional[float]=None
-
-# class B(BaseModel):
-#     apple:str='x'
-#     banana:str='y'
-
-
-# class c(BaseModel):
-#     a:A
-#     b:list[B]
-#     a1:A
-#     b1:list[B]
-
-
-# m = c(
-#     a={'count': 10, 'size': 4},
-
-#     b=[
-#         {'apple': 'red', 'banana': 'yellow'},
-#         {'apple': 'green', 'banana': 'green'},
-#         {'apple': 'pink'},
-#         {'banana': 'black'}
-#     ],
-
-#     a1={'count': '15', 'size': 4},
-
-#     b1=[
-#         {'apple': 'red', 'banana': 'yellow'},
-#         {'apple': 'green', 'banana': 'green'},
-#         {'apple': 'pink'},
-#         {'banana': 'black'}
-#     ]
-# )
-
-# print(m)
-
-
-# print(m.model_dump())
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# user=User(name="Sanchit Chauhan" , id='1234')
-
-
-# assert user.name=="Sanchit Chauhan"
-# assert user.id==1234
-# assert isinstance(user.id,int)
-# assert isinstance(user.name, str)
-# print(user) #expecting my name Sanchit Chauhan 
-
-
-# assert user.model_dump()=={'id':1234 ,'name':'Sanchit Chauhan'}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# import base64
-# from google import genai
-# from dotenv import load_dotenv
-
-# load_dotenv()
-# client=genai.Client()
-
-# interaction=client.interactions.create(
-#     model="gemini-2.5-flash-image",
-#     input="create me an image of super car"
-# )
-# with open("generated_image.png","wb") as f:
-#     f.write(base64.b64decode(interaction.output_image.data))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# with open("dog-on-isolated-background-png.png.webp","rb") as f:
-#     image_byte=f.read()
-#     image_b64=base64.b64encode(image_byte).decode("uft-8")
-
-# interection=client.interactions.create(
-# model="gemini-3.6-flash",
-# input=[
-#     {
-#         "type":"text","text":"this is a image tell me what it is u think"},
-#     {
-#         "type":"image",
-#         "data":image_b64,
-#         "mime_type":"image/webp"
-#     }
-# ]
-# )
-# print(interection)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# from dotenv import load_dotenv
-# from google import genai
-
-# load_dotenv()
-# client = genai.Client()
-
-# response= client.interactions.create(
-#     model="gemini-3.6-flash",
-#     input="hello i have a dog, it has 4 paws",
-# )
-
-# print(response.output_text)
-
-# response2=client.interactions.create(
-#     model='gemini-3.6-flash',
-#     input='how many paws does it have',
-#     previous_interaction_id=response.id,
-# )
-# print(response2.output_text)
-

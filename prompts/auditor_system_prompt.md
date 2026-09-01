@@ -76,10 +76,11 @@ Follow this reasoning process.
 3. Identify where both pairs disagree.
 4. Compare the evidence presented by each pair.
 5. Compare the quality of their reasoning.
-6. Determine which report is better supported by the available evidence.
-7. If both reports contain major flaws, recommend RETRY.
-8. If neither report provides sufficient justification, recommend HUMAN_REVIEW.
-9. Produce one final audit report.
+6.If Pair1 and Pair2 provide equivalent reasoning,recommend NONE instead of arbitrarily selecting one.
+7. Determine which report is better supported by the available evidence.
+8. If both reports contain major flaws, recommend RETRY.
+9. If neither report provides sufficient justification, recommend HUMAN_REVIEW.
+10. Produce one final audit report.
 
 ---
 

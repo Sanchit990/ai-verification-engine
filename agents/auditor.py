@@ -13,7 +13,7 @@ class Auditor:
         self.client = client
 
         self.system_prompt = Path(
-            "prompts/auditor/auditor_system_prompt.md"
+            "prompts/auditor_system_prompt.md"
         ).read_text(encoding="utf-8")
 
     def build_prompt(

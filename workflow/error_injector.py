@@ -111,51 +111,13 @@ class ErrorInjector:
     ) -> list[dict]:
 
         metadata = []
-
-        total = len(transactions)
-
-        used = set()
-
-        def get_index():
-            while True:
-                i = random.randint(0, total - 1)
-                if i not in used:
-                    used.add(i)
-                    return i
-
-        metadata.append(
-            self.inject_amount_mismatch(
-                transactions,
-                get_index()
-            )
-        )
-
-        metadata.append(
-            self.inject_currency_mismatch(
-                transactions,
-                get_index()
-            )
-        )
-
-        metadata.append(
-            self.inject_missing_reference(
-                transactions,
-                get_index()
-            )
-        )
-
-        metadata.append(
-            self.inject_duplicate_transaction(
-                transactions,
-                get_index()
-            )
-        )
-
-        metadata.append(
-            self.inject_missing_transaction(
-                transactions,
-                get_index()
-            )
-        )
+        error_functions=[self.inject_amount_mismatch,self.inject_currency_mismatch,
+                        self.inject_missing_reference,self.inject_duplicate_transaction,
+                        self.inject_missing_transaction]
+        error_to_inject=min(len(error_functions),len(transactions))
+        indices=random.sample(range(len(transactions)),k=error_to_inject)   
+        for f,index in zip(error_functions[:error_to_inject],indices):
+            
+            metadata.append(f(transactions,index))
 
         return metadata
