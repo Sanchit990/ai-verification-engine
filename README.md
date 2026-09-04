@@ -72,7 +72,7 @@ The system follows a hierarchical consensus architecture.
 
 
 ## Workflow
-
+```text
 Raw Dataset
     ↓
 Data Preprocessor
@@ -88,7 +88,7 @@ Auditor
 Judge
     ↓
 Final Decision
-
+```
 
 ## Key Features
 
