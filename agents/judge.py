@@ -2,10 +2,8 @@ from pathlib import Path
 
 from config.gemini_client import client
 
-from models.judge_report import JudgeReport
-from models.pair1 import Pair1Report
-from models.pair2 import Pair2Report
-from models.auditor_report import AuditorReport
+from models.judge.judge_report import JudgeReport
+from models.judge.verificationcase import VerificationCase
 
 
 class Judge:
@@ -20,38 +18,35 @@ class Judge:
 
     def build_prompt(
         self,
-        pair1_report,
-        pair2_report,
-        auditor_report,
-    ):
+        case: VerificationCase
+    ) -> str:
 
         return f"""
 ==========================
 PAIR 1 REPORT
 ==========================
 
-{pair1_report.model_dump_json(indent=2)}
+{case.pair1_report.model_dump_json(indent=2)}
 
 ==========================
 PAIR 2 REPORT
 ==========================
 
-{pair2_report.model_dump_json(indent=2)}
+{case.pair2_report.model_dump_json(indent=2)}
 
 ==========================
 AUDITOR REPORT
 ==========================
 
-{auditor_report.model_dump_json(indent=2)}
+{case.auditor_report.model_dump_json(indent=2)}
 """
 
-    def analyze(self, pair1_report, pair2_report, auditor_report,):
+    def analyze(
+        self,
+        case: VerificationCase
+    ) -> JudgeReport:
 
-        prompt = self.build_prompt(
-            pair1_report,
-            pair2_report,
-            auditor_report
-        )
+        prompt = self.build_prompt(case)
 
         response = self.client.interactions.create(
 
@@ -66,31 +61,21 @@ AUDITOR REPORT
             },
         )
 
-        return JudgeReport.model_validate_json(
+        judge_report = JudgeReport.model_validate_json(
             response.output_text
         )
+        return judge_report
 
     def analyze_batch(
         self,
-        pair1_reports,
-        pair2_reports,
-        auditor_reports,
-    ):
+        cases: list[VerificationCase]
+    ) -> list[JudgeReport]:
 
-        outputs = []
+        outputs: list[JudgeReport] = []
 
-        for p1, p2, audit in zip(
-            pair1_reports,
-            pair2_reports,
-            auditor_reports
-        ):
-
+        for case in cases:
             outputs.append(
-                self.analyze(
-                    p1,
-                    p2,
-                    audit
-                )
+                self.analyze(case)
             )
 
         return outputs

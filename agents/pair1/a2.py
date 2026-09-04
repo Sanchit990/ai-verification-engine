@@ -54,7 +54,6 @@ Payment Mode: {transaction.payment_mode}
     def analyze(self,fullrec:FullRecord)->AgentOutput:
 
         prompt = self.build_prompt(fullrec)
-
         response = self.client.interactions.create(
             model="gemini-3.6-flash",
             input=f"{self.system_prompt}\n\n{prompt}",
